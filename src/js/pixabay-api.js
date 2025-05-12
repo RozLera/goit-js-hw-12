@@ -7,16 +7,21 @@ const params = {
   safesearch: true,
 };
 
-export function getImagesByQuery(query) {
-  return axios('', {
-    params: {
-      q: query,
-      key: '50191530-19c60f56ef7d22126639596e8',
-      image_type: 'photo',
-      orientation: 'horizontal',
-      safesearch: true,
-    },
-  })
-    .then(res => res.data)
-    .catch(error => error);
+export async function getImagesByQuery(query, page) {
+  try {
+    const res = await axios('', {
+      params: {
+        q: query,
+        key: '50191530-19c60f56ef7d22126639596e8',
+        image_type: 'photo',
+        orientation: 'horizontal',
+        safesearch: true,
+        per_page: 15,
+        page,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    // return error;
+  }
 }

@@ -10,15 +10,20 @@ import {
   simpleLightbox,
 } from './js/render-functions';
 
+let query = '';
+let page = 1;
+
 const formEl = document.querySelector('.js-form');
 const loader = document.querySelector('.js-loader');
+const loadMoreBtn = document.querySelector('.btn-loader');
 
 formEl.addEventListener('submit', onFormSubmit);
+loadMoreBtn.addEventListener('click', onLoadMoreBtnClick);
 
-function onFormSubmit(event) {
+async function onFormSubmit(event) {
   event.preventDefault();
 
-  const query = event.target.elements['search-text'].value.trim();
+  query = event.target.elements['search-text'].value.trim();
   if (query === '') {
     iziToast.warning({
       position: 'topRight',
@@ -29,30 +34,48 @@ function onFormSubmit(event) {
   clearGallery();
   showLoader(loader);
 
-  getImagesByQuery(query)
-    .then(data => {
-      if (data.hits.length === 0) {
-        iziToast.warning({
-          position: 'topRight',
-          message:
-            'Sorry, there are no images matching your search query. Please try again!',
-        });
-        clearGallery();
-        return;
-      }
-
-      createGallery(data.hits);
-
-      simpleLightbox.refresh();
-    })
-    .catch(error => {
-      iziToast.error({
+  try {
+    const data = await getImagesByQuery(query);
+    if (data.hits.length === 0) {
+      iziToast.warning({
         position: 'topRight',
-        message: `ERROR: ${error}`,
+        message:
+          'Sorry, there are no images matching your search query. Please try again!',
       });
-    })
-    .finally(() => {
-      hideLoader(loader);
-      formEl.reset();
+      clearGallery();
+      return;
+    }
+    if (data.totalHits > 15) {
+      showLoader(loadMoreBtn);
+    }
+
+    createGallery(data.hits);
+
+    simpleLightbox.refresh();
+  } catch (error) {
+    iziToast.error({
+      position: 'topRight',
+      message: `ERROR: ${error}`,
     });
+  } finally {
+    hideLoader(loader);
+    formEl.reset();
+  }
+}
+
+async function onLoadMoreBtnClick() {
+  try {
+    page += 1;
+    const data = await getImagesByQuery(query, page);
+    createGallery(data.hits);
+    simpleLightbox.refresh();
+  } catch (error) {
+    iziToast.error({
+      position: 'topRight',
+      message: `ERROR: ${error}`,
+    });
+  } finally {
+    hideLoader(loader);
+    formEl.reset();
+  }
 }
