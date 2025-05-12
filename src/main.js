@@ -64,10 +64,29 @@ async function onFormSubmit(event) {
 }
 
 async function onLoadMoreBtnClick() {
+  showLoader(loader);
+
   try {
     page += 1;
+
     const data = await getImagesByQuery(query, page);
+    if (page * 15 >= data.totalHits) {
+      page = 1;
+      hideLoader(loadMoreBtn);
+      iziToast.info({
+        position: 'topRight',
+        message: "We're sorry, but you've reached the end of search results.",
+      });
+    }
+
     createGallery(data.hits);
+    const galleryItem = document.querySelector('.gallery-item');
+    const elementHeight = galleryItem.getBoundingClientRect().height;
+    window.scrollBy({
+      top: elementHeight * 2,
+      behavior: 'smooth',
+    });
+
     simpleLightbox.refresh();
   } catch (error) {
     iziToast.error({
