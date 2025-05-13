@@ -22,6 +22,6 @@ export async function getImagesByQuery(query, page) {
     });
     return res.data;
   } catch (error) {
-    // return error;
+    return error;
   }
 }
