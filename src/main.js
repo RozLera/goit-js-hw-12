@@ -22,6 +22,7 @@ loadMoreBtn.addEventListener('click', onLoadMoreBtnClick);
 
 async function onFormSubmit(event) {
   event.preventDefault();
+  page = 1;
 
   query = event.target.elements['search-text'].value.trim();
   if (query === '') {
@@ -35,13 +36,15 @@ async function onFormSubmit(event) {
   showLoader(loader);
 
   try {
-    const data = await getImagesByQuery(query);
+    const data = await getImagesByQuery(query, page);
+
     if (data.hits.length === 0) {
       iziToast.warning({
         position: 'topRight',
         message:
           'Sorry, there are no images matching your search query. Please try again!',
       });
+      hideLoader(loadMoreBtn);
       clearGallery();
       return;
     }
@@ -71,8 +74,8 @@ async function onLoadMoreBtnClick() {
 
     const data = await getImagesByQuery(query, page);
     if (page * 15 >= data.totalHits) {
-      page = 1;
       hideLoader(loadMoreBtn);
+
       iziToast.info({
         position: 'topRight',
         message: "We're sorry, but you've reached the end of search results.",

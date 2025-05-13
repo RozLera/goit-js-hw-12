@@ -144,7 +144,7 @@ button:hover {
 
 .btn-loader {
   display: block;
-  margin: 0 auto 40px auto; /* Центрування + відступ знизу */
+  margin: 0 auto 20px auto; /* Центрування + відступ знизу */
   padding: 12px 24px;
   background-color: #242424;
   color: white;
